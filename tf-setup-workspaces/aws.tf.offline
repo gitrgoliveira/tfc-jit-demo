@@ -1,0 +1,101 @@
+# -------------- TFC setup --------------
+resource "tfe_workspace" "aws-login-demo" {
+    name         = "aws-login-demo"
+    organization = var.organization_name
+    tag_names    = ["aws", "demo", "jit"]
+    agent_pool_id = data.tfe_agent_pool.test.id
+    execution_mode = "agent"
+    description = "A Workspace to test the JIT feature with AWS"
+}
+
+resource "tfe_variable_set" "aws" {
+  name         = "AWS access"
+  description  = "some useful description"
+  organization = var.organization_name
+}
+resource "tfe_variable" "AWS_TFC_WORKLOAD_IDENTITY_AUDIENCE" {
+  key      = "TFC_WORKLOAD_IDENTITY_AUDIENCE"
+  value    = "aws.workload.identity"
+  category = "env"
+  sensitive = false
+  variable_set_id = tfe_variable_set.aws.id
+}
+resource "tfe_variable" "TFC_AWS_RUN_ROLE_ARN" {
+  key      = "TFC_AWS_RUN_ROLE_ARN"
+  value    = "arn:aws:iam::711129375688:role/se_demos_dev-developer"
+  category = "env"
+  sensitive = false
+  variable_set_id = tfe_variable_set.aws.id
+}
+
+resource "tfe_workspace_variable_set" "aws-login-demo" {
+    variable_set_id = tfe_variable_set.aws.id
+    workspace_id = tfe_workspace.aws-login-demo.id
+}
+
+# -------------- AWS setup --------------
+
+provider "aws" {
+  region = "eu-west-1"
+}
+
+data "tls_certificate" "tfc_certificate" {
+  url = "https://app.terraform.io"
+}
+
+resource "aws_iam_openid_connect_provider" "tfc_provider" {
+  url             = "https://app.terraform.io"
+  client_id_list  = ["aws.workload.identity"]
+  thumbprint_list = ["${data.tls_certificate.tfc_certificate.certificates.0.sha1_fingerprint}"]
+}
+
+resource "aws_iam_role" "role" {
+  name = "test-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "${aws_iam_openid_connect_provider.tfc_provider.arn}"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringLike": {
+          "app.terraform.io:aud": "aws.workload.identity",
+          "app.terraform.io:sub": "organization:${var.organization_name}:workspace:${tfe_workspace.aws-login-demo.name}:run_phase:*"
+        }
+      }
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_policy" "policy" {
+  name        = "test-policy"
+  description = "A test policy"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy_attachment" "test-attach" {
+  role       = aws_iam_role.role.name
+  policy_arn = aws_iam_policy.policy.arn
+}
+
