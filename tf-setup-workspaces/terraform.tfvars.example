@@ -1,0 +1,5 @@
+
+tfe_agent_pool_name = "AWS"
+organization_name   = "hc-emea-sentinel-demo"
+gcp_project_id      = "hc-cea5942256f349d6a5e6b46c305"
+vault_address       = "http://192.168.68.118:8200"
