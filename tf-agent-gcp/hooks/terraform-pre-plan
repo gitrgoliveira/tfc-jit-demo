@@ -1,0 +1,19 @@
+#!/bin/bash
+ 
+echo "Preparing GCP provider auth..."
+
+# Remove any previous temporary credentials
+ 
+rm -f /.gcp-workload/app-credentials
+ 
+rm -f /.gcp-workload/token-file
+ 
+export AUDIENCE="//iam.googleapis.com/projects/$TFC_GCP_PROJECT_NUMBER/locations/$TFC_GCP_REGION/workloadIdentityPools/$TFC_GCP_WORKLOAD_POOL_ID/providers/$TFC_GCP_WORKLOAD_PROVIDER_ID"
+# echo "Using Audience: $AUDIENCE"
+export SERVICE_URL="https://iamcredentials.googleapis.com/v1/projects/-/serviceAccounts/$TFC_GCP_SERVICE_ACCOUNT_EMAIL:generateAccessToken"
+ 
+jq -n -r --arg AUDIENCE "$AUDIENCE" --arg SERVICE_URL "$SERVICE_URL" '{ "type": "external_account", "audience": $AUDIENCE, "subject_token_type": "urn:ietf:params:oauth:token-type:jwt", "token_url": "https://sts.googleapis.com/v1/token", "credential_source": { "file": "/.gcp-workload/token-file" }, "service_account_impersonation_url": $SERVICE_URL }' > /.gcp-workload/app-credentials
+ 
+echo $TFC_WORKLOAD_IDENTITY_TOKEN > /.gcp-workload/token-file
+ 
+echo "GCP provider auth prepared"

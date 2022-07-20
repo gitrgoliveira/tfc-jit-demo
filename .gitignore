@@ -1,0 +1,9 @@
+.terraform/
+.terraform*
+*.tfstate.*
+*.tfstate
+*.tfvars
+*.log
+*.json
+*.token
+.DS_Store

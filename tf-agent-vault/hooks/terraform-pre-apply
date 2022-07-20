@@ -1,0 +1,14 @@
+#!/bin/bash
+
+jq -n -r --arg JWT "$TFC_WORKLOAD_IDENTITY_TOKEN" --arg ROLE "$TFC_VAULT_RUN_ROLE" '{"jwt": $JWT, "role": $ROLE}' > payload.json
+
+# Trying to install the vault client in the docker container was beginning to lead down a rabbit hole so I just use the
+# REST api here instead.
+VAULT_TOKEN=$(curl -s $VAULT_ADDR/v1/auth/jwt/login \
+    --request POST \
+    --data @payload.json | jq -r '.auth.client_token')
+
+echo $VAULT_TOKEN > ~/.vault-token
+
+echo "Vault provider auth prepared"
+
