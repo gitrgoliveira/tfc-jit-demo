@@ -44,14 +44,6 @@ resource "tfe_variable" "VAULT_ADDR" {
   sensitive       = false
   variable_set_id = tfe_variable_set.vault.id
 }
-resource "tfe_variable" "TFC_VAULT_ADDRESS" {
-  key             = "TFC_VAULT_ADDRESS"
-  value           = var.vault_address
-  category        = "env"
-  sensitive       = false
-  variable_set_id = tfe_variable_set.vault.id
-}
-
 
 resource "tfe_variable" "TFC_WORKLOAD_IDENTITY_AUDIENCE" {
   key             = "TFC_WORKLOAD_IDENTITY_AUDIENCE"
