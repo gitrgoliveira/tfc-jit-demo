@@ -68,3 +68,11 @@ resource "tfe_variable" "TFC_VAULT_RUN_ROLE2" {
   sensitive    = false
   workspace_id = tfe_workspace.vault-login-demo2.id
 }
+
+resource "tfe_variable" "VAULT_NAMESPACE" {
+  key          = "VAULT_NAMESPACE"
+  value        = ""
+  category     = "env"
+  sensitive    = false
+  workspace_id = tfe_workspace.vault-login-demo2.id
+}

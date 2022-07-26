@@ -6,6 +6,7 @@ jq -n -r --arg JWT "$TFC_WORKLOAD_IDENTITY_TOKEN" --arg ROLE "$TFC_VAULT_RUN_ROL
 # REST api here instead.
 VAULT_TOKEN=$(curl -s $VAULT_ADDR/v1/auth/jwt/login \
     --request POST \
+    --header "X-Vault-Namespace: $VAULT_NAMESPACE" \
     --data @payload.json | jq -r '.auth.client_token')
 
 echo $VAULT_TOKEN > ~/.vault-token
