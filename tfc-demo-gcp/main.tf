@@ -17,7 +17,6 @@ terraform {
 
 variable "project_id" {
   type        = string
-  default     = "hc-cea5942256f349d6a5e6b46c305"
   description = "your GCP project ID"
 }
 
