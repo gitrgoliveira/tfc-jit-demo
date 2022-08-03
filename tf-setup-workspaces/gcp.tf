@@ -79,7 +79,7 @@ resource "tfe_variable" "TFC_GCP_REGION" {
 resource "tfe_variable" "gcp_project_id" {
   key          = "project_id"
   value        = var.gcp_project_id
-  category     = "env"
+  category     = "terraform"
   sensitive    = false
   workspace_id = tfe_workspace.gcp-login-demo.id
 }
