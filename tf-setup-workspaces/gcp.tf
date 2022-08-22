@@ -126,6 +126,7 @@ resource "google_iam_workload_identity_pool_provider" "tfc-provider" {
     "attribute.terraform_organization_id"   = "assertion.terraform_organization_id",
     "attribute.terraform_organization_name" = "assertion.terraform_organization_name",
     "attribute.terraform_run_id"            = "assertion.terraform_run_id",
+    "attribute.terraform_full_workspace"    = "assertion.terraform_full_workspace",
   }
   oidc {
     issuer_uri        = "https://app.terraform.io"
