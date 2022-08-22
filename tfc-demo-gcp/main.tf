@@ -5,14 +5,12 @@ terraform {
       tags = ["jit", "gcp"]
     }
   }
+  
   required_providers {
     google = {
       version = "~> 4.29.0"
     }
-
   }
-
-
 }
 
 variable "project_id" {
